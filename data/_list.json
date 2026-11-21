@@ -1,5 +1,5 @@
 [
-    "SampleLevel1",
-    "SAMPLELEVEL2",
-    "Sample_Level_3"
+    "./data/SampleLevel1.json",
+    "./data/SAMPLELEVEL2.json",
+    "./data/Sample_Level_3.json"
 ]
