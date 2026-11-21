@@ -3,7 +3,7 @@ import { round, score } from './score.js';
 /**
  * Path to directory containing `_list.json` and all levels
  */
-const dir = '/data';
+const dir = './data';
 
 export async function fetchList() {
     const listResult = await fetch(`${dir}./_list.json`);
@@ -11,7 +11,7 @@ export async function fetchList() {
         const list = await listResult.json();
         return await Promise.all(
             list.map(async (path, rank) => {
-                const levelResult = await fetch(`${dir}/${path}.json`);
+                const levelResult = await fetch(`${dir}./${path}.json`);
                 try {
                     const level = await levelResult.json();
                     return [
