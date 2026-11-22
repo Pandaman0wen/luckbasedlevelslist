@@ -8,7 +8,7 @@ export default {
                 <h1>Submit a Record</h1>
                 <p>Fill out the information below to submit a new record.</p>
 
-                <form @submit.prevent="prepareSubmission">
+                <form @submit.prevent="submitSubmission">
 
                     <label>Search for a level</label>
                     <input
@@ -77,8 +77,11 @@ export default {
                         Mobile Record
                     </label>
 
-                    <button type="submit" :disabled="loading">
-                        Prepare Submission
+                    <p v-if="error" class="error">{{ error }}</p>
+                    <p v-if="success" class="success">{{ success }}</p>
+
+                    <button type="submit" :disabled="submitting">
+                        {{ submitting ? 'Submitting...' : 'Submit Record' }}
                     </button>
                 </form>
 
@@ -90,6 +93,7 @@ export default {
                         readonly
                         :value="submission"
                     ></textarea>
+                    
 
                     <button type="button" @click="copySubmission">
                         Copy Submission
@@ -114,6 +118,9 @@ export default {
             mobile: false,
             submission: '',
             copied: false,
+            submitting: false,
+            error: '',
+            success: '',
         };
     },
 
@@ -147,24 +154,45 @@ export default {
     },
 
     methods: {
-        prepareSubmission() {
-            const level = this.levels.find(
-                item => item.path === this.selectedLevel
-            );
+       
+async submitSubmission() {
+    this.error = '';
+    this.success = '';
+    this.submitting = true;
 
-            if (!level) return;
+    try {
+        const response = await fetch(
+            'https://level-submission-bot.onrender.com/api/submissions',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    levelPath: this.selectedLevel,
+                    username: this.username.trim(),
+                    percent: this.percent,
+                    video: this.video.trim(),
+                    hz: this.hz,
+                    mobile: this.mobile,
+                }),
+            }
+        );
 
-            this.submission = [
-                `Level: ${level.name}`,
-                `Player: ${this.username}`,
-                `Percentage: ${this.percent}%`,
-                `Video: ${this.video}`,
-                `Refresh Rate: ${this.hz}Hz`,
-                `Mobile: ${this.mobile ? 'Yes' : 'No'}`,
-            ].join('\n');
+        const result = await response.json();
 
-            this.copied = false;
-        },
+        if (!response.ok) {
+            throw new Error(result.error || 'Submission failed.');
+        }
+
+        this.success = 'Your submission was sent successfully!';
+        this.submission = '';
+    } catch (error) {
+        this.error = error.message;
+    } finally {
+        this.submitting = false;
+    }
+},
 
         async copySubmission() {
             try {
