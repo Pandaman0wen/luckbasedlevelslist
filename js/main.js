@@ -1,3 +1,4 @@
+console.log("MAIN MODULE EXECUTED");
 import routes from './routes.js';
 
 export const store = Vue.reactive({
