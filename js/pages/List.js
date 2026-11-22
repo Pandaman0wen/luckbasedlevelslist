@@ -154,7 +154,7 @@ export default {
         },
     }
     async()
-    mounted{
+    mounted
         // Hide loading spinner
         this.list = await fetchList();
         this.editors = await fetchEditors();
@@ -175,7 +175,7 @@ export default {
             if (!this.editors) {
                 this.errors.push("Failed to load list editors.");
             }
-        }
+        
 
         this.loading = false;
     },
