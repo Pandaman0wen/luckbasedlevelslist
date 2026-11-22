@@ -178,3 +178,21 @@ input[type="checkbox"] {
     object-fit: cover;
 }
 
+
+.notifications {
+    margin: 24px 0;
+    padding: 16px;
+    border: 1px solid #5865F2;
+    border-radius: 10px;
+}
+
+.notification {
+    padding: 12px;
+    margin-top: 12px;
+    border-radius: 8px;
+    background: rgba(88, 101, 242, 0.12);
+}
+
+.notification button {
+    margin-top: 8px;
+}
