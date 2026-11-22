@@ -158,3 +158,23 @@ input[type="checkbox"] {
     min-height: 160px;
     resize: vertical;
 }
+
+.account {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.account__profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.account__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
