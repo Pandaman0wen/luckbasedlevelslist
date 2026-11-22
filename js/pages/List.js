@@ -153,7 +153,7 @@ export default {
             );
         },
     }
-    async mounted() {
+    async() {
         // Hide loading spinner
         this.list = await fetchList();
         this.editors = await fetchEditors();
