@@ -136,12 +136,14 @@ export default {
         roleIconMap,
         store
     }),
+    
     computed: {
         level() {
-    return this.list?.[this.selected]?.[0] ?? null;
-    },
-},
+            return this.list?.[this.selected]?.[0] ?? null;
+        },
         video() {
+            if (!this.level) return '';
+
             if (!this.level.showcase) {
                 return embed(this.level.verification);
             }
@@ -152,13 +154,11 @@ export default {
                     : this.level.verification
             );
         },
-    }
-    async(mounted){
-        // Hide loading spinner
+    },
+    async mounted() {
         this.list = await fetchList();
         this.editors = await fetchEditors();
 
-        // Error handling
         if (!this.list) {
             this.errors = [
                 "Failed to load list. Retry in a few minutes or notify list staff.",
@@ -167,17 +167,16 @@ export default {
             this.errors.push(
                 ...this.list
                     .filter(([_, err]) => err)
-                    .map(([_, err]) => {
-                        return `Failed to load level. (${err}.json)`;
-                    })
+                    .map(([_, err]) => `Failed to load level. (${err}.json)`)
             );
+
             if (!this.editors) {
                 this.errors.push("Failed to load list editors.");
             }
-    
-        this.loading = false;
         }
-                     
+
+        this.loading = false;
+    },
     methods: {
         embed,
         score,
