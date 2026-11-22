@@ -50,6 +50,7 @@
                     <span class="type-label-lg">Roulette</span>
                 </router-link>
                
+
 <div class="nav__actions">
     <button
         class="nav__icon"
@@ -61,7 +62,6 @@
         />
     </button>
 
-    <!-- Discord server invite -->
     <a class="nav__icon" href="#">
         <img src="./assets/discord.svg" alt="Discord Server" />
     </a>
@@ -89,6 +89,53 @@
                 {{ store.user.global_name || store.user.username }}
             </span>
 
+            <!-- Notification bell -->
+            <div class="notification-wrapper">
+                <button
+                    class="notification-bell"
+                    @click="store.toggleNotifications()"
+                    aria-label="Notifications"
+                >
+                    <span>Notifications</span>
+                    <span
+                        v-if="store.unreadCount"
+                        class="notification-count"
+                    >
+                        {{ store.unreadCount }}
+                    </span>
+                </button>
+
+                <div
+                    v-if="store.notificationPanelOpen"
+                    class="notification-panel"
+                >
+                    <h3>Notifications</h3>
+
+                    <p v-if="store.notifications.length === 0">
+                        No new notifications.
+                    </p>
+
+                    <div
+                        v-for="notification in store.notifications"
+                        :key="notification.id"
+                        class="notification-item"
+                    >
+                        <p>
+                            Your record for
+                            <strong>{{ notification.level_name }}</strong>
+                            at {{ notification.percent }}%
+                            has been accepted!
+                        </p>
+
+                        <button
+                            @click="store.markNotificationRead(notification.id)"
+                        >
+                            Dismiss
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <button
                 class="nav__cta type-label-lg"
                 @click="store.logout()"
@@ -107,6 +154,7 @@
         Submit Record
     </a>
 </div>
+
             </nav>
         </header>
         <router-view :class="{ dark: store.dark }"></router-view>
