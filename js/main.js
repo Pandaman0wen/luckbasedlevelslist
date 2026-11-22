@@ -9,6 +9,14 @@ export const store = Vue.reactive({
     user: null,
     authLoading: true,
 
+    notifications: [],
+    notificationPanelOpen: false,
+    notificationTimer: null,
+
+    get unreadCount() {
+        return this.notifications.length;
+    },
+
     toggleDark() {
         this.dark = !this.dark;
         localStorage.setItem('dark', JSON.stringify(this.dark));
@@ -26,6 +34,12 @@ export const store = Vue.reactive({
             });
 
             this.user = null;
+            this.notifications = [];
+
+            if (this.notificationTimer) {
+                clearInterval(this.notificationTimer);
+                this.notificationTimer = null;
+            }
         } catch (error) {
             console.error('Logout failed:', error);
         }
@@ -40,11 +54,65 @@ export const store = Vue.reactive({
             const data = await response.json();
 
             this.user = data.authenticated ? data.user : null;
+
+            if (this.user) {
+                await this.loadNotifications();
+            } else {
+                this.notifications = [];
+            }
         } catch (error) {
             console.error('Authentication check failed:', error);
             this.user = null;
+            this.notifications = [];
         } finally {
             this.authLoading = false;
+        }
+    },
+
+    async loadNotifications() {
+        if (!this.user) return;
+
+        try {
+            const response = await fetch(`${API}/api/notifications`, {
+                credentials: 'include',
+            });
+
+            if (!response.ok) return;
+
+            const data = await response.json();
+            this.notifications = data.notifications || [];
+        } catch (error) {
+            console.error('Notification check failed:', error);
+        }
+    },
+
+    async markNotificationRead(id) {
+        try {
+            const response = await fetch(
+                `${API}/api/notifications/${id}/read`,
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Could not dismiss notification.');
+            }
+
+            this.notifications = this.notifications.filter(
+                notification => notification.id !== id
+            );
+        } catch (error) {
+            console.error('Could not dismiss notification:', error);
+        }
+    },
+
+    toggleNotifications() {
+        this.notificationPanelOpen = !this.notificationPanelOpen;
+
+        if (this.notificationPanelOpen) {
+            this.loadNotifications();
         }
     },
 });
@@ -52,8 +120,21 @@ export const store = Vue.reactive({
 const app = Vue.createApp({
     data: () => ({ store }),
 
-    mounted() {
-        store.checkAuth();
+    async mounted() {
+        await store.checkAuth();
+
+        if (store.user && !store.notificationTimer) {
+            store.notificationTimer = setInterval(() => {
+                store.loadNotifications();
+            }, 30000);
+        }
+    },
+
+    beforeUnmount() {
+        if (store.notificationTimer) {
+            clearInterval(store.notificationTimer);
+            store.notificationTimer = null;
+        }
     },
 });
 
