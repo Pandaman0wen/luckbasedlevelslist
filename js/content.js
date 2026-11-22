@@ -3,15 +3,15 @@ import { round, score } from './score.js';
 /**
  * Path to directory containing `_list.json` and all levels
  */
-const dir = './data';
+const dataFile = (name) => new URL(`../data/${name}`, import.meta.url);
 
 export async function fetchList() {
-    const listResult = await fetch(`${dir}/_list.json`);
+    const listResult = await fetch(dataFile('_list.json'));
     try {
         const list = await listResult.json();
         return await Promise.all(
             list.map(async (path, rank) => {
-                const levelResult = await fetch(`${dir}/${path}.json`);
+                const levelResult = await fetch(dataFile(`${path}.json`));
                 try {
                     const level = await levelResult.json();
                     return [
@@ -31,14 +31,14 @@ export async function fetchList() {
             }),
         );
     } catch {
-        console.error(`Failed to load list.`);
+        console.error(`Failed to load list.`, error);
         return null;
     }
 }
 
 export async function fetchEditors() {
     try {
-        const editorsResults = await fetch(`${dir}/_editors.json`);
+        const editorsResults = await fetch(dataFile('_editors.json'));
         const editors = await editorsResults.json();
         return editors;
     } catch {
